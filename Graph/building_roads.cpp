@@ -1,4 +1,7 @@
 #include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp> 
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds; 
 using namespace std;
 #define mod 1000000007
 #define pb push_back
@@ -24,6 +27,12 @@ int dy8[]={0,1,1, 1, 0,-1,-1,-1};
 int dx4[]={1, 0, -1, 0};
 int dy4[]={0, 1, 0, -1};
 typedef long long ll;
+template<class T>using ordered_set=tree<T, null_type, 
+less<T>, rb_tree_tag,tree_order_statistics_node_update>;
+template<class T>using ordered_multiset=tree<T, null_type, 
+less_equal<T>, rb_tree_tag,tree_order_statistics_node_update>;
+template <class K, class V> using ordered_map = tree<K, V, 
+less<K>, rb_tree_tag, tree_order_statistics_node_update>;
  
 #define trace(...) __f(#__VA_ARGS__, __VA_ARGS__)
 template <typename Arg1>
@@ -47,51 +56,43 @@ template<typename T,typename T1>T amin(T &a,T1 b){if(b<a)a=b;return a;}
 // ===================================== //
 
 /*
-    DFS traversal in a matrix
+    Connected components
 */
  
-bool vis[1001][1001];
-vector<string> v;
+const int N=1e5+5;
+vector<int> edges[N], vis(N);
 int n, m;
+vector<vector<int>> comp;
  
-bool isValid(int x, int y){
-    if(x<0 || x>=n || y<0 || y>=m){
-        return false;
-    }
-    if(vis[x][y]){
-        return false;
-    }
-    if(v[x][y]=='#'){
-        return false;
-    }
-    return true;
-}
- 
-void dfs(int x, int y){
-    vis[x][y]=1;
-    for(int i=0; i<4; i++){
-        int nextX=x+dx4[i];
-        int nextY=y+dy4[i];
-        if(isValid(nextX, nextY)){
-            dfs(nextX, nextY);
+void dfs(int node, vector<int> &t){
+    t.pb(node);
+    vis[node]=1;
+    for(int adj:edges[node]){
+        if(!vis[adj]){
+            dfs(adj, t);
         }
     }
 }
  
 void solve(){
     cin >> n >> m;
-    v.resize(n);
-    cin >> v;
-    int cnt=0;
-    rep0(i, n){
-        rep0(j, m){
-            if(!vis[i][j] && v[i][j]=='.'){
-                cnt++;
-                dfs(i, j);
-            }
+    rep0(i, m){
+        int x, y;
+        cin >> x >> y;
+        edges[x].pb(y);
+        edges[y].pb(x);
+    }
+    rep1(i, 1, n){
+        if(!vis[i]){
+            vector<int> t;
+            dfs(i, t);
+            comp.pb(t);
         }
     }
-    cout << cnt << endl;
+    cout << sz(comp)-1 << endl;
+    for(int i=1; i<sz(comp); i++){
+        cout << comp[i][0] << " " << comp[i-1][0] << endl;
+    }
 }   
  
 int main(){

@@ -1,4 +1,7 @@
 #include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp> 
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds; 
 using namespace std;
 #define mod 1000000007
 #define pb push_back
@@ -24,6 +27,10 @@ int dy8[]={0,1,1, 1, 0,-1,-1,-1};
 int dx4[]={1, 0, -1, 0};
 int dy4[]={0, 1, 0, -1};
 typedef long long ll;
+template<class T>using ordered_set=tree<T, null_type, 
+less<T>, rb_tree_tag,tree_order_statistics_node_update>;
+template <class K, class V> using ordered_map = tree<K, V, 
+less<K>, rb_tree_tag, tree_order_statistics_node_update>;
  
 #define trace(...) __f(#__VA_ARGS__, __VA_ARGS__)
 template <typename Arg1>
@@ -47,51 +54,54 @@ template<typename T,typename T1>T amin(T &a,T1 b){if(b<a)a=b;return a;}
 // ===================================== //
 
 /*
-    DFS traversal in a matrix
+    DFS Traversal
 */
  
-bool vis[1001][1001];
-vector<string> v;
-int n, m;
+const int N=1e5+5;
+int vis[N], col[N];
  
-bool isValid(int x, int y){
-    if(x<0 || x>=n || y<0 || y>=m){
-        return false;
-    }
-    if(vis[x][y]){
-        return false;
-    }
-    if(v[x][y]=='#'){
-        return false;
-    }
-    return true;
-}
- 
-void dfs(int x, int y){
-    vis[x][y]=1;
-    for(int i=0; i<4; i++){
-        int nextX=x+dx4[i];
-        int nextY=y+dy4[i];
-        if(isValid(nextX, nextY)){
-            dfs(nextX, nextY);
+void dfs(int sv, int c, vector<int>* edges){
+    vis[sv]=1;
+    col[sv]=c;
+    for(int adj: edges[sv]){
+        if(!vis[adj]){
+            dfs(adj, c^1, edges);
         }
     }
+}
+ 
+vector<int>* inputG(int n, int m){
+    vector<int>* edges = new vector<int>[n+1];
+    for(int i=0; i<m; i++){
+        int sv, ev;
+        cin >> sv >> ev;
+        edges[sv].pb(ev);
+        edges[ev].pb(sv);
+    }
+    return edges;
 }
  
 void solve(){
+    int n, m;
     cin >> n >> m;
-    v.resize(n);
-    cin >> v;
-    int cnt=0;
-    rep0(i, n){
-        rep0(j, m){
-            if(!vis[i][j] && v[i][j]=='.'){
-                cnt++;
-                dfs(i, j);
+    vector<int>* edges=inputG(n, m);
+    rep1(i, 1, n){
+        if(!vis[i]){
+            dfs(i, 1, edges);
+        }
+    }
+    rep1(i, 1, n){
+        for(int adj: edges[i]){
+            if(col[adj]==col[i]){
+                cout << "IMPOSSIBLE" << endl;
+                return;
             }
         }
     }
-    cout << cnt << endl;
+    rep1(i, 1, n){
+        cout << col[i]+1 << " ";
+    }
+    cout << endl;
 }   
  
 int main(){
