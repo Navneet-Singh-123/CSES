@@ -83,33 +83,58 @@ typename T_container::value_type>::type> ostream& operator<<(ostream &os, const 
 
 // ===================================== //
 
-ll n, x;
-vector<ll> v, dp;
+ll n, m;
+vector<ll> v;
+vector<vector<ll>> dp;
 
-/*
-Here since order does not matter, we are not using another state in dp to track the
-usage of a value. At every instance, we have to iterate all values as a permutaion 
-can end with any of the values
-*/
-
-ll solve(ll target){
-    if(target<0)return 0;
-    if(target==0)return 1;
-    if(dp[target]!=-1)return dp[target];
-    ll res=0;
-    rep0(i, n){
-        (res=(res%mod+solve(target-v[i])%mod)%mod)%mod;
+ll solve(ll idx, int nxt){
+    if(idx==0){
+        if(!v[idx]){
+            ll res=0;
+            rep1(val, nxt-1, nxt+1){
+                res+=(check(val, 1, m));
+            }
+            return res;
+        }
+        return abs(nxt-v[idx])<=1;
     }
-    return dp[target]=res;
+    if(dp[idx][nxt]!=-1)return dp[idx][nxt];
+    if(v[idx]){
+        if(abs(v[idx]-nxt)<=1)return dp[idx][nxt] = solve(idx-1, v[idx]);
+        return dp[idx][nxt] = 0;
+    }
+    ll res=0;
+    rep1(val, nxt-1, nxt+1){
+        if(check(val, 1, m)){
+            res=(res%mod + solve(idx-1, val)%mod)%mod;
+            res%=mod;
+        }
+    }
+    return dp[idx][nxt] = res;
 }
 
-void solve(){       
-    cin >> n >> x;
+void solve(){   
+    cin >> n >> m;
     v.resize(n);
     cin >> v;
-    dp.resize(x+1);
-    fill(all(dp), -1);
-    ll res=solve(x);
+    if(n==1){
+        if(v[0]){
+            cout << 1 << endl;
+            return;
+        }
+        cout << m << endl;
+        return;
+    }
+    dp=vector<vector<ll>>(n, vector<ll>(m+1, -1));
+    ll res=0;
+    if(v.back()){
+        res=solve(n-2, v[n-1]);
+    }else{
+        rep1(val, 1, m){
+            res=(res%mod + solve(n-2, val)%mod)%mod;
+        }
+    }
+    res%=mod;
     cout << res << endl;
 }   
 

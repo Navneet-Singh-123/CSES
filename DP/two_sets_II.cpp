@@ -83,33 +83,56 @@ typename T_container::value_type>::type> ostream& operator<<(ostream &os, const 
 
 // ===================================== //
 
-ll n, x;
-vector<ll> v, dp;
+ll n;
+vector<vector<ll>> dp;
 
-/*
-Here since order does not matter, we are not using another state in dp to track the
-usage of a value. At every instance, we have to iterate all values as a permutaion 
-can end with any of the values
-*/
+// ll solve(ll val, ll req){
+//     if(!req)return 1;
+//     if(val==1)return req==1;
+//     if(dp[val][req]!=-1)return dp[val][req];
+//     ll op1=solve(val-1, req), op2=0;
+//     if(val<=req)op2=solve(val-1, req-val);
+//     return dp[val][req] = (op1%mod + op2%mod)%mod;
+// }
 
-ll solve(ll target){
-    if(target<0)return 0;
-    if(target==0)return 1;
-    if(dp[target]!=-1)return dp[target];
-    ll res=0;
-    rep0(i, n){
-        (res=(res%mod+solve(target-v[i])%mod)%mod)%mod;
+ll powerm(ll a, ll b, ll c){
+    ll x = 1, y = a;
+    while(b){
+        if(b&1){
+            x = (x%c * y%c)%c;
+        }
+        b>>=1;
+        y=(y%c * y%c)%c;
     }
-    return dp[target]=res;
+    return x;
 }
 
-void solve(){       
-    cin >> n >> x;
-    v.resize(n);
-    cin >> v;
-    dp.resize(x+1);
-    fill(all(dp), -1);
-    ll res=solve(x);
+ll mod_inv(ll x){
+    return powerm(x, mod-2, mod);
+}
+
+void solve(){   
+    cin >> n;
+    ll s=(n*(n+1))/2;
+    if(s%2){
+        cout << 0 << endl;
+        return;
+    }        
+    s=s/2;
+    dp=vector<vector<ll>>(n+1, vector<ll>(s+1));
+    rep0(i, n+1)dp[i][0]=1;
+    ll res=0;
+    dp[1][1]=1;
+    for(ll val=2; val<=n; val++){
+        for(ll req=1; req<=s; req++){
+            ll op1=dp[val-1][req], op2=0;
+            if(val<=req)op2=dp[val-1][req-val];
+            dp[val][req] = (op1%mod + op2%mod)%mod;
+        }
+    }
+    res=dp[n][s];
+    res*=mod_inv(2);
+    res%=mod;
     cout << res << endl;
 }   
 

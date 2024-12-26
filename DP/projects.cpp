@@ -83,34 +83,39 @@ typename T_container::value_type>::type> ostream& operator<<(ostream &os, const 
 
 // ===================================== //
 
-ll n, x;
-vector<ll> v, dp;
+ll n;
+vector<ll> dp;
+vector<pair<pll, ll>> v;
 
-/*
-Here since order does not matter, we are not using another state in dp to track the
-usage of a value. At every instance, we have to iterate all values as a permutaion 
-can end with any of the values
-*/
+// ll solve(ll idx){
+//     if(idx>=n)return 0;
+//     if(dp[idx]!=-1)return dp[idx];
+//     ll op1=solve(idx+1);
+//     pair<pll, ll> nxt={{v[idx].ff.ss+1, -inf}, -inf};
+//     ll nxt_idx=lower_bound(all(v), nxt)-v.begin();
+//     ll op2=v[idx].ss+solve(nxt_idx);
+//     return dp[idx] = max(op1, op2);
+// } 
 
-ll solve(ll target){
-    if(target<0)return 0;
-    if(target==0)return 1;
-    if(dp[target]!=-1)return dp[target];
-    ll res=0;
-    rep0(i, n){
-        (res=(res%mod+solve(target-v[i])%mod)%mod)%mod;
-    }
-    return dp[target]=res;
-}
-
-void solve(){       
-    cin >> n >> x;
+void solve(){   
+    cin >> n;
     v.resize(n);
-    cin >> v;
-    dp.resize(x+1);
-    fill(all(dp), -1);
-    ll res=solve(x);
-    cout << res << endl;
+    rep0(i, n){
+        ll l, r, val;
+        cin >> l >> r >> val;
+        v[i]={{l, r}, val};
+    }
+    sort(all(v));
+    dp=vector<ll>(n+1);
+    for(int idx=n-1; idx>=0; idx--){
+        ll op1=dp[idx+1];
+        pair<pll, ll> nxt={{v[idx].ff.ss+1, -inf}, -inf};
+        ll nxt_idx=lower_bound(all(v), nxt)-v.begin();
+        if(nxt_idx>=n)nxt_idx=n;
+        ll op2=v[idx].ss+dp[nxt_idx];
+        dp[idx]=max(op1, op2);
+    }
+    cout << dp[0] << endl;
 }   
 
 int main(){
@@ -122,6 +127,7 @@ int main(){
 
     FAST_IO;
     int t=1;
+    // cin >> t;
     while(t--){
         solve();
     }

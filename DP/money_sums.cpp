@@ -83,33 +83,29 @@ typename T_container::value_type>::type> ostream& operator<<(ostream &os, const 
 
 // ===================================== //
 
-ll n, x;
-vector<ll> v, dp;
-
-/*
-Here since order does not matter, we are not using another state in dp to track the
-usage of a value. At every instance, we have to iterate all values as a permutaion 
-can end with any of the values
-*/
-
-ll solve(ll target){
-    if(target<0)return 0;
-    if(target==0)return 1;
-    if(dp[target]!=-1)return dp[target];
-    ll res=0;
-    rep0(i, n){
-        (res=(res%mod+solve(target-v[i])%mod)%mod)%mod;
-    }
-    return dp[target]=res;
-}
-
-void solve(){       
-    cin >> n >> x;
-    v.resize(n);
+void solve(){   
+    ll n;
+    cin >> n;
+    vector<ll> v(n);
     cin >> v;
-    dp.resize(x+1);
-    fill(all(dp), -1);
-    ll res=solve(x);
+    ll sum=accumulate(all(v), 0LL);
+    vector<ll> dp(sum+1);
+    dp[0]=1;
+    dp[v[0]]=1;
+    rep1(i, 1, n-1){
+        for(int j=sum; j>=1; j--){
+            ll op1=dp[j], op2=0;
+            if(v[i]<=j)op2=dp[j-v[i]];
+            dp[j]=op1||op2;
+        }
+    }
+    vector<ll> res;
+    rep1(i, 1, sum){
+        if(dp[i]){
+            res.pb(i);
+        }
+    }
+    cout << sz(res) << endl;
     cout << res << endl;
 }   
 

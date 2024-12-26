@@ -84,33 +84,32 @@ typename T_container::value_type>::type> ostream& operator<<(ostream &os, const 
 // ===================================== //
 
 ll n, x;
-vector<ll> v, dp;
+vector<ll> v;
 
 /*
-Here since order does not matter, we are not using another state in dp to track the
-usage of a value. At every instance, we have to iterate all values as a permutaion 
-can end with any of the values
+Here we need to distinct ordered ways, so we dont have to consider permutation
+A value will be included n times and it has to be together 
+x*v1 , y*v2 etc... thats y another state in dp is required to track the usage of
+each value
 */
 
-ll solve(ll target){
-    if(target<0)return 0;
-    if(target==0)return 1;
-    if(dp[target]!=-1)return dp[target];
-    ll res=0;
-    rep0(i, n){
-        (res=(res%mod+solve(target-v[i])%mod)%mod)%mod;
-    }
-    return dp[target]=res;
-}
-
-void solve(){       
+void solve(){   
     cin >> n >> x;
     v.resize(n);
     cin >> v;
-    dp.resize(x+1);
-    fill(all(dp), -1);
-    ll res=solve(x);
-    cout << res << endl;
+    vector<ll> prev(x+1);
+    for(ll target=0; target<=x; target++)prev[target]=(target%v[0]==0);
+    for(ll idx=1; idx<n; idx++){
+        vector<ll> cur(x+1);
+        cur[0]=1;
+        for(ll target=1; target<=x; target++){
+            ll op1=prev[target], op2=0;
+            if(v[idx]<=target)op2=cur[target-v[idx]];
+            cur[target]=(op1%mod + op2%mod)%mod;
+        }
+        prev=cur;
+    }
+    cout << prev[x] << endl;
 }   
 
 int main(){

@@ -83,35 +83,32 @@ typename T_container::value_type>::type> ostream& operator<<(ostream &os, const 
 
 // ===================================== //
 
-ll n, x;
-vector<ll> v, dp;
+ll n;
+vector<ll> v;
+vector<vector<ll>> dp;
 
-/*
-Here since order does not matter, we are not using another state in dp to track the
-usage of a value. At every instance, we have to iterate all values as a permutaion 
-can end with any of the values
-*/
-
-ll solve(ll target){
-    if(target<0)return 0;
-    if(target==0)return 1;
-    if(dp[target]!=-1)return dp[target];
-    ll res=0;
-    rep0(i, n){
-        (res=(res%mod+solve(target-v[i])%mod)%mod)%mod;
-    }
-    return dp[target]=res;
-}
-
-void solve(){       
-    cin >> n >> x;
-    v.resize(n);
+void solve(){   
+    cin >> n;
+    v=vector<ll>(n);
     cin >> v;
-    dp.resize(x+1);
-    fill(all(dp), -1);
-    ll res=solve(x);
-    cout << res << endl;
-}   
+    dp=vector<vector<ll>>(n+2, vector<ll>(n+2));
+    for(int l=n-1; l>=0; l--){
+        for(int r=l; r<n; r++){
+            if(l==r){
+                dp[l][r]=v[l];
+                continue;
+            }
+            if(l==r-1){
+                dp[l][r]=max(v[l], v[r]);
+                continue;
+            }
+            ll op1=v[l]+min(dp[l+1][r-1], dp[l+2][r]);
+            ll op2=v[r]+min(dp[l+1][r-1], dp[l][r-2]);
+            dp[l][r]=max(op1, op2);
+        }
+    }
+    cout << dp[0][n-1] << endl;
+}       
 
 int main(){
 

@@ -37,7 +37,7 @@ template<class T>using ordered_multiset=tree<T, null_type,
 less_equal<T>, rb_tree_tag,tree_order_statistics_node_update>;
 template <class K, class V> using ordered_map = tree<K, V, 
 less<K>, rb_tree_tag, tree_order_statistics_node_update>;
-
+ 
 #define trace(...) __f(#__VA_ARGS__, __VA_ARGS__)
 template <typename Arg1>
 void __f(const char *name, Arg1 &&arg1){
@@ -49,7 +49,7 @@ void __f(const char *names, Arg1 &&arg1, Args&&... args){
     cerr.write(names, comma - names) << " : " << arg1 << " | ";
     __f(comma + 1, args...);
 }
-
+ 
 struct custom_hash{
     static uint64_t splitmix64(uint64_t x){
         x += 0x9e3779b97f4a7c15;
@@ -64,7 +64,7 @@ struct custom_hash{
 };
 template <typename T1, typename T2> 
 using u_map = unordered_map<T1, T2, custom_hash>;
-
+ 
 mt19937_64 rng((ll)chrono::steady_clock::now().time_since_epoch().count());
 template<typename T>void _print(vector<vector<T>> &v)
 {for(int i=0; i<sz(v); i++){for(int j=0; j<sz(v[i]); j++){cout << v[i][j] << " ";}cout << endl;}}
@@ -80,51 +80,47 @@ template<typename T,typename T1>T amin(T &a,T1 b){if(b<a)a=b;return a;}
 template<typename T_container, typename T = typename enable_if<!is_same<T_container, string>::value, 
 typename T_container::value_type>::type> ostream& operator<<(ostream &os, const T_container &v) 
 { os << '{'; string sep; for (const T &x : v) os << sep << x, sep = ", "; return os << '}'; }
-
+ 
 // ===================================== //
-
-ll n, x;
-vector<ll> v, dp;
-
-/*
-Here since order does not matter, we are not using another state in dp to track the
-usage of a value. At every instance, we have to iterate all values as a permutaion 
-can end with any of the values
-*/
-
-ll solve(ll target){
-    if(target<0)return 0;
-    if(target==0)return 1;
-    if(dp[target]!=-1)return dp[target];
-    ll res=0;
-    rep0(i, n){
-        (res=(res%mod+solve(target-v[i])%mod)%mod)%mod;
+ 
+ 
+void solve(){   
+    ll a, b;
+    cin >> a >> b;
+    vector<vector<ll>> dp(a+1, vector<ll>(b+1));
+    rep1(i, 1, a){
+        rep1(j, 1, b){
+            if(i==j)dp[i][j]=0;
+            else{
+                ll res=1, op=inf;
+                for(ll cutV=1; cutV<=j-1; cutV++){
+                    ll cur=dp[i][cutV]+dp[i][j-cutV];
+                    amin(op, cur);
+                }
+                for(ll cutH=1; cutH<=i-1; cutH++){
+                    ll cur=dp[cutH][j]+dp[i-cutH][j];
+                    amin(op, cur);
+                }
+                res+=op;
+                dp[i][j]=res;
+            }
+        }
     }
-    return dp[target]=res;
-}
-
-void solve(){       
-    cin >> n >> x;
-    v.resize(n);
-    cin >> v;
-    dp.resize(x+1);
-    fill(all(dp), -1);
-    ll res=solve(x);
-    cout << res << endl;
+    cout << dp[a][b] << endl;
 }   
-
+ 
 int main(){
-
+ 
     #ifndef ONLINE_JUDGE
         freopen("input.txt", "r", stdin); 
         freopen("output.txt", "w", stdout);
     #endif 
-
+ 
     FAST_IO;
     int t=1;
     while(t--){
         solve();
     }
-
+ 
     return 0;
 }

@@ -83,34 +83,48 @@ typename T_container::value_type>::type> ostream& operator<<(ostream &os, const 
 
 // ===================================== //
 
-ll n, x;
-vector<ll> v, dp;
+ll n;
+vector<string> v;
 
-/*
-Here since order does not matter, we are not using another state in dp to track the
-usage of a value. At every instance, we have to iterate all values as a permutaion 
-can end with any of the values
-*/
+// ll solve(ll x, ll y){
+//     if(x==n-1 && y==n-1)return (v[x][y]=='.');
+//     if(x>=n || y>=n)return 0;
+//     if(dp[x][y]!=-1)return dp[x][y];
+//     if(v[x][y]=='*')return 0;
+//     ll op1=solve(x+1, y), op2=solve(x, y+1);
+//     return dp[x][y]=(op1%mod + op2%mod)%mod;
+// }
 
-ll solve(ll target){
-    if(target<0)return 0;
-    if(target==0)return 1;
-    if(dp[target]!=-1)return dp[target];
-    ll res=0;
-    rep0(i, n){
-        (res=(res%mod+solve(target-v[i])%mod)%mod)%mod;
-    }
-    return dp[target]=res;
-}
-
-void solve(){       
-    cin >> n >> x;
+void solve(){   
+    cin >> n;
     v.resize(n);
     cin >> v;
-    dp.resize(x+1);
-    fill(all(dp), -1);
-    ll res=solve(x);
-    cout << res << endl;
+    vector<ll> ahead(n+1);
+    for(int y=n-1; y>=0; y--){
+        if(y==n-1){
+            ahead[y]=(v[n-1][y]=='.');
+            continue;
+        }
+        if(v[n-1][y]=='*'){
+            ahead[y]=0;
+            continue;
+        }
+        ll op1=0, op2=ahead[y+1];
+        ahead[y]=(op1%mod + op2%mod)%mod;
+    }
+    for(int x=n-2; x>=0; x--){
+        vector<ll> cur(n+1);
+        for(int y=n-1; y>=0; y--){
+            if(v[x][y]=='*'){
+                cur[y]=0;
+                continue;
+            }
+            ll op1=ahead[y], op2=cur[y+1];
+            cur[y]=(op1%mod + op2%mod)%mod;
+        }
+        ahead=cur;
+    }
+    cout << ahead[0] << endl;
 }   
 
 int main(){
